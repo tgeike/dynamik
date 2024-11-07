@@ -70,11 +70,23 @@ md"""
 # ╔═╡ 1f8a2198-c537-425d-8245-f58feeb4e935
 K = aI + c/m*sF
 
+# ╔═╡ 82887c6c-76a4-4e93-852e-90d12b518a93
+sB = m*K/c |> u"m"
+
+# ╔═╡ fe747525-a36d-4acc-b157-df93328b46e7
+md"""Beim Weg $(round(typeof(1.0u"m"),sB,digits=2)) hat die Beschleunigung einen Nulldurchgang. Ab diesem Weg nimmt die Geschwindigkeit ab."""
+
 # ╔═╡ 9eb500f4-80a2-4225-b33d-aa380b88b9dc
 diskr(s) = vI(sF)^2 + 2K*(s - sF) - c/m*(s^2 - sF^2);
 
 # ╔═╡ e3ede9ca-f922-4e41-abd2-dd2a599ecf0f
 vII(s) = sqrt(diskr(s));
+
+# ╔═╡ dec5f09c-45dd-4eba-9613-d4c95b4b5204
+vII(sB)
+
+# ╔═╡ aa6838d9-fdb6-471c-a0eb-bd9a52bd9a7b
+md"""Die maximale Geschwindigkeit beträgt $(round(typeof(1.0u"m/s"),vII(sB),digits=2)) (im Vergleich zu $(round(typeof(1.0u"m/s"),vI(sF),digits=2)) bei Erreichen des Anschlags)."""
 
 # ╔═╡ 5b372a35-5227-4768-9bc9-d412730d48ac
 md"""Durch das Zusammendrücken der Feder wird der Körper abgebremst und erreicht einen momentanen Stillstand (danach Bewegungsumkehr). Der bis dahin zurückgelegte Weg kann durch Nullstellensuche bestimmt werden."""
@@ -95,7 +107,7 @@ v(s) = s < sF ? vI(s) : vII(s);
 # ╔═╡ cc6858ef-bd5e-4ec7-b25e-53076f6d0852
 begin 
 	plot(range(0.0u"m",smax,150),v,label=false,lw=2,size=(500,300),xlabel="Weg",ylabel="Geschwindigkeit")
-	vline!([sF],label=false)
+	vline!([sF,sB],label=false)
 end
 
 # ╔═╡ 2fcdb15b-c352-48a5-af3b-e46c0aea09e7
@@ -1268,8 +1280,12 @@ version = "1.4.1+1"
 # ╠═d63f81e4-fe50-4da1-8f7e-f855c5a3290c
 # ╟─a7be2ad4-8469-41eb-b057-a139a46ad6ca
 # ╠═1f8a2198-c537-425d-8245-f58feeb4e935
+# ╠═82887c6c-76a4-4e93-852e-90d12b518a93
+# ╟─fe747525-a36d-4acc-b157-df93328b46e7
 # ╠═9eb500f4-80a2-4225-b33d-aa380b88b9dc
 # ╠═e3ede9ca-f922-4e41-abd2-dd2a599ecf0f
+# ╠═dec5f09c-45dd-4eba-9613-d4c95b4b5204
+# ╟─aa6838d9-fdb6-471c-a0eb-bd9a52bd9a7b
 # ╟─5b372a35-5227-4768-9bc9-d412730d48ac
 # ╠═4c8b5474-3eef-4ad3-8c61-44f9a35105a8
 # ╟─8ceb0390-aa16-4a57-bfee-40d389fe86ca
