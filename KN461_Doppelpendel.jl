@@ -4,6 +4,9 @@
 using Markdown
 using InteractiveUtils
 
+# ╔═╡ 294db881-f118-4fc5-b306-f3b4b78773d8
+using PlutoUI
+
 # ╔═╡ 20f2a8ba-9f35-11ef-213f-5d937dfe6660
 using Symbolics
 
@@ -18,6 +21,9 @@ md"""
 
 In diesem Pluto-Notebook werden die Bewegungsgleichungen des Systems symbolisch mit dem Paket `Symbolics` hergeleitet. Es wird das Prinzip des kleinsten Zwangs von C. F. Gauß benutzt. Für die theoretischen Grundlagen sei auf das Buch *Kinematik und Kinetik* von Thomas Geike (ISBN-13: 9783757820220) verwiesen.
 """
+
+# ╔═╡ 39c4f440-9846-497c-965b-985eb65e1fa8
+LocalResource("Doppelpendel_Bild.jpg",:width => 300)
 
 # ╔═╡ b7bc1805-216b-4f13-aa78-b52ff06639c3
 md"""
@@ -130,7 +136,7 @@ dgl2 = simplify(expand(expand_derivatives(Dα2(Z))))
 md"""Export der Bewegungsgleichungen in eine Datei als Latex-Code."""
 
 # ╔═╡ 758ec0cd-9f76-408a-b922-400e6d3f0197
-write("ausgabe1.tex", latexify(dgl1), latexify(dgl2));
+write("ausgabe-doppelpendel.tex", latexify(dgl1), latexify(dgl2));
 
 # ╔═╡ 9cd46d99-539d-4d60-a1c7-a8b0d6305f76
 md"""
@@ -141,10 +147,12 @@ Im vorliegenden Plut-Notebook sollen nur die Bewegungsgleichungen hergeleitet we
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
+PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
 Latexify = "~0.16.5"
+PlutoUI = "~0.7.59"
 Symbolics = "~5.14.1"
 """
 
@@ -154,7 +162,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.10.2"
 manifest_format = "2.0"
-project_hash = "e4ab2ea47390762311e2f4991b9e941dbdd70e0e"
+project_hash = "baed5194e34a7db2feff6a0db17969856a9b1c50"
 
 [[deps.ADTypes]]
 git-tree-sha1 = "eea5d80188827b35333801ef97a40c2ed653b081"
@@ -174,6 +182,12 @@ deps = ["GroupsCore", "InteractiveUtils", "LinearAlgebra", "MacroTools", "Prefer
 git-tree-sha1 = "d7832de8cf7af26abac741f10372080ac6cb73df"
 uuid = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
 version = "0.34.7"
+
+[[deps.AbstractPlutoDingetjes]]
+deps = ["Pkg"]
+git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
+uuid = "6e696c72-6542-2067-7265-42206c756150"
+version = "1.3.2"
 
 [[deps.AbstractTrees]]
 git-tree-sha1 = "2d9c9a55f9c93e8887ad391fbae72f8ef55e1177"
@@ -275,6 +289,12 @@ weakdeps = ["SparseArrays"]
 
     [deps.ChainRulesCore.extensions]
     ChainRulesCoreSparseArraysExt = "SparseArrays"
+
+[[deps.ColorTypes]]
+deps = ["FixedPointNumbers", "Random"]
+git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
+uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
+version = "0.11.5"
 
 [[deps.Combinatorics]]
 git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
@@ -443,6 +463,12 @@ weakdeps = ["PDMats", "SparseArrays", "Statistics"]
     FillArraysSparseArraysExt = "SparseArrays"
     FillArraysStatisticsExt = "Statistics"
 
+[[deps.FixedPointNumbers]]
+deps = ["Statistics"]
+git-tree-sha1 = "05882d6995ae5c12bb5f36dd2ed3f61c98cbb172"
+uuid = "53c48c17-4a7d-5ca2-90c5-79b7896eea93"
+version = "0.8.5"
+
 [[deps.Format]]
 git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
@@ -497,6 +523,24 @@ git-tree-sha1 = "7c4195be1649ae622304031ed46a2f4df989f1eb"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.24"
 
+[[deps.Hyperscript]]
+deps = ["Test"]
+git-tree-sha1 = "179267cfa5e712760cd43dcae385d7ea90cc25a4"
+uuid = "47d2ed2b-36de-50cf-bf87-49c2cf4b8b91"
+version = "0.0.5"
+
+[[deps.HypertextLiteral]]
+deps = ["Tricks"]
+git-tree-sha1 = "7134810b1afce04bbc1045ca1985fbe81ce17653"
+uuid = "ac1192a8-f4b3-4bfe-ba22-af5b92cd3ab2"
+version = "0.9.5"
+
+[[deps.IOCapture]]
+deps = ["Logging", "Random"]
+git-tree-sha1 = "8b72179abc660bfab5e28472e019392b97d0985c"
+uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+version = "0.2.4"
+
 [[deps.IfElse]]
 git-tree-sha1 = "debdd00ffef04665ccbb3e150747a77560e8fad1"
 uuid = "615f187c-cbe4-4ef1-ba3b-2fcf58d6d173"
@@ -547,6 +591,12 @@ deps = ["Artifacts", "Preferences"]
 git-tree-sha1 = "be3dc50a92e5a386872a493a10050136d4703f9b"
 uuid = "692b3bcd-3c85-4b1f-b108-f13ce0eb3210"
 version = "1.6.1"
+
+[[deps.JSON]]
+deps = ["Dates", "Mmap", "Parsers", "Unicode"]
+git-tree-sha1 = "31e996f0a15c7b280ba9f76636b3ff9e2ae58c9a"
+uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+version = "0.21.4"
 
 [[deps.LaTeXStrings]]
 git-tree-sha1 = "dda21b8cbd6a6c40d9d02a73230f9d70fed6918c"
@@ -630,6 +680,11 @@ version = "0.3.28"
 [[deps.Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
+[[deps.MIMEs]]
+git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
+uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
+version = "0.1.4"
+
 [[deps.MLStyle]]
 git-tree-sha1 = "bc38dff0548128765760c79eb7388a4b37fae2c8"
 uuid = "d8e11817-5142-5d16-987a-aa16d5891078"
@@ -655,6 +710,9 @@ deps = ["DataAPI"]
 git-tree-sha1 = "ec4f7fbeab05d7747bdf98eb74d130a2a2ed298d"
 uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
 version = "1.2.0"
+
+[[deps.Mmap]]
+uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[deps.MozillaCACerts_jll]]
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
@@ -709,10 +767,22 @@ git-tree-sha1 = "949347156c25054de2db3b166c52ac4728cbad65"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
 version = "0.11.31"
 
+[[deps.Parsers]]
+deps = ["Dates", "PrecompileTools", "UUIDs"]
+git-tree-sha1 = "8489905bcdbcfac64d1daa51ca07c0d8f0283821"
+uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
+version = "2.8.1"
+
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 version = "1.10.0"
+
+[[deps.PlutoUI]]
+deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
+git-tree-sha1 = "ab55ee1510ad2af0ff674dbcced5e94921f867a9"
+uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+version = "0.7.59"
 
 [[deps.PreallocationTools]]
 deps = ["Adapt", "ArrayInterface", "ForwardDiff"]
@@ -1046,6 +1116,16 @@ git-tree-sha1 = "3a6f063d690135f5c1ba351412c82bae4d1402bf"
 uuid = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 version = "0.5.25"
 
+[[deps.Tricks]]
+git-tree-sha1 = "7822b97e99a1672bfb1b49b668a6d46d58d8cbcb"
+uuid = "410a4b4d-49e4-4fbc-ab6d-cb71b17b3775"
+version = "0.1.9"
+
+[[deps.URIs]]
+git-tree-sha1 = "67db6cc7b3821e19ebe75791a9dd19c9b1188f2b"
+uuid = "5c2747f8-b7ea-4ff2-ba2e-563bfd36b1d4"
+version = "1.5.1"
+
 [[deps.UUIDs]]
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
@@ -1082,6 +1162,8 @@ version = "17.4.0+2"
 
 # ╔═╡ Cell order:
 # ╟─5bd60237-d723-4a1b-9c53-6b400fd4114e
+# ╠═294db881-f118-4fc5-b306-f3b4b78773d8
+# ╟─39c4f440-9846-497c-965b-985eb65e1fa8
 # ╠═20f2a8ba-9f35-11ef-213f-5d937dfe6660
 # ╟─b7bc1805-216b-4f13-aa78-b52ff06639c3
 # ╟─d69e5aec-38ba-4ef3-96ec-1d2028ffe124
