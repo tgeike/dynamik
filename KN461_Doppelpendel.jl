@@ -141,7 +141,7 @@ write("ausgabe-doppelpendel.tex", latexify(dgl1), latexify(dgl2));
 # ╔═╡ 9cd46d99-539d-4d60-a1c7-a8b0d6305f76
 md"""
 ### Schritt 3: Bewegungsgleichungen numerisch lösen und visualisieren
-Im vorliegenden Plut-Notebook sollen nur die Bewegungsgleichungen hergeleitet werden. Die numersiche Lösung ist der folgende Schritt."""
+Im vorliegenden Plut-Notebook sollen nur die Bewegungsgleichungen hergeleitet werden. Die numersiche Lösung ist der folgende Schritt und erfolgt in einem anderen Notebook."""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
