@@ -199,7 +199,7 @@ md"""Die Schwingungsdauer für kleine Schwingungen um die stabile Gleichwichtsla
 
 # ╔═╡ c94e7e99-0796-433b-884f-8b8a08d8c034
 md"""
-### Erhaltung der mechanischen Energie
+### Erhaltung der mechanischen Energie prüfen
 Zum Abschluss betrachten wir noch die mechanische Energie während der betrachteten Bewegung. Da es ein konservatives System ist, muss die mechanische Energie im Zeitverlauf erhalten bleiben. das wollen wir prüfen.
 
 Es gilt
