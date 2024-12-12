@@ -24,12 +24,28 @@ md"""
 # Technische Berechnungen mit Julia
 ## System aus Stange und Feder"""
 
-# ╔═╡ 8d3c1d29-c7bf-45f6-8c59-42a347672c08
-LocalResource("KN471_Stange-Feder.png",(:width=>300))
+# ╔═╡ 8d283b26-a98d-4025-a9b3-5b03901043de
+md"""Die Pakete `Plots` und `Unitful` werden für die Erstellung von Diagrammen bzw. für das Rechnen mit Einheiten benötigt."""
+
+# ╔═╡ a7c4f650-59a3-4690-9a2e-66430640e789
+md"""Das Paket `ForwardDiff` wird für die automatische Differentiation genutzt. Die automatische Differentiation wird hier benötigt, um die Linearisierung der Bewegungsgleichung um die stabile Gleichgewichtslage vorzunehmen. Die Linearisierung wird vorgenommen, um die Schwingungsdauer von kleinen Schwingungen um die stabile Gleichgewichtslage zu untersuchen."""
+
+# ╔═╡ b7193864-4422-42a7-878f-7759b557447a
+md"""Das Paket `Optim` wird für die numerische Minimumsuche benötigt. Die numerische Minimumsuche wird zur Bestimmung der Gleichgewichtslage(n) benutzt."""
+
+# ╔═╡ e1873ee7-632f-4531-b8bc-6f850e11bece
+md"""Das Paket `DifferentialEquations` wird für das numerische Lösen des AWP benutzt."""
+
+# ╔═╡ e6501760-c35e-4db2-9fb6-c5e608d89069
+md"""Das Paket `PlutoUI` wird benötigt, um ein (externes) Bild in das Notebook einzubinden."""
 
 # ╔═╡ c9ff7c07-3f19-4a85-9254-59fe20ffdf06
 md"""
-### Parameter festlegen"""
+### System verstehen und Parameter festlegen
+Die homogene Stange ist in A drehbar gelagert und in B mit einer Feder (Steifigkeit ``k``, entspannte Länge ``l``) verbunden. Das System hat den Freiheitsgrad 1 (Rotation um A). Als generalisierte Koordinate wird der Drehwinkel ``\varphi`` benutzt."""
+
+# ╔═╡ 8d3c1d29-c7bf-45f6-8c59-42a347672c08
+LocalResource("KN471_Stange-Feder.png",(:width=>300))
 
 # ╔═╡ 372d6a94-872c-4462-b7f0-c6995306d173
 begin
@@ -39,6 +55,14 @@ begin
 	l = 0.3u"m"
 	JA = m*l^2/12 + m*(0.5*l)^2
 end;
+
+# ╔═╡ 755bf023-3e09-4c5f-8b69-cd856d239eb6
+md"""Insgesamt sind 5 Größen gegeben. Für das Systemverhalten sind aber nur bestimmte Kombinationen der Parameter maßgeblich. Konkret genügen zwei Parameter ``\lambda`` und ``\kappa`` gemäß
+```math
+\lambda = \sqrt{\frac{k l^2}{J_\mathrm{A}}} \quad\text{und}\quad \kappa = \frac{mg}{kl}\;.
+```
+Wenn man eine dimensionslose Zeit einführen würde, könnte man die Größe ``1/\lambda`` als charakteristische Zeit nutzen.
+"""
 
 # ╔═╡ 6f0c52ba-4d80-4ca9-94dd-9a95fb17a64a
 struct Systemparameter
@@ -71,7 +95,9 @@ md"""Die stabile Gleichgewichtslage kann analytisch oder numerisch aus der poten
 ϕG(param.κ)
 
 # ╔═╡ d9b49fd8-a856-497f-8c7f-9ee09f729aa0
-md"""Für den Wert $(param.κ) von ``\kappa`` ergibt sich als Winkel der stabilen Gleichgewichtslage $(round(ϕG(param.κ),digits=3)) rad. Das entspricht  $(round(rad2deg(ϕG(param.κ)),digits=3))°."""
+md"""Für den Wert $(param.κ) von ``\kappa`` ergibt sich als Winkel der stabilen Gleichgewichtslage $(round(ϕG(param.κ),digits=3)) rad. Das entspricht  $(round(rad2deg(ϕG(param.κ)),digits=3))°.
+
+**Auftrag:** Leiten Sie eigenständig die Formel für die potentielle Energie her und bestimmen Sie die Lage des lokalen Minimums der potentiellen Energie."""
 
 # ╔═╡ 19873a3f-1f41-43e1-903f-a50d0501796d
 Epot_d(ϕ,κ) = (κ-4)*cos(ϕ) - 2*sqrt(5-4*cos(ϕ)) + 6;
@@ -86,7 +112,7 @@ end
 md"""Man erkennt die beiden instabilen Gleichgewichtslage bei ``\varphi=0`` und bei ``\varphi=\pi``."""
 
 # ╔═╡ dfc7881f-24b5-4756-9b41-7f6e72aae8c9
-md"""Numerische Minimumsuche"""
+md"""**Numerische Minimumsuche** In der Praxis wird man häufig auf eine analytische Bestimmung des Minimums verzichten und stattdessen das Minimum numerisch bestimmen. Hier wird dazu der Befehl `optimize` aus dem Paket `Optim` verwendet."""
 
 # ╔═╡ 6f4dc8a0-c9a5-4821-ac1d-40edc4efde17
 res=optimize(u->Epot_d(u[1],param.κ),[1.0])
@@ -109,8 +135,18 @@ Die Bewegungsgleichung lautet
 Es handelt sich um eine nichtlineare, autonome Differentialgleichung 2. Ordnung.
 """
 
+# ╔═╡ 74635621-5ac0-4497-b79a-e8eefa950d57
+md"""**Auftrag:** Leiten Sie die Bewegungsgleichung eigenständig her (z. B. über die Momentengleichung oder die Bilanz der kinetischen Energie)."""
+
 # ╔═╡ 56248300-05fb-47bd-bd97-463c96c8b685
 Ξ(ϕ,p) = - p.λ^2*(2*(1-1/sqrt(5-4*cos(ϕ))) - 0.5*p.κ)*sin(ϕ);
+
+# ╔═╡ 78225e4b-b578-462f-bf8e-e4d6c7ae6091
+md"""Die Zustandsvariablen sind
+```math
+z_1 = \varphi \quad\text{und}\quad z_2 = \dot\varphi = \omega\;.
+```
+"""
 
 # ╔═╡ fb229a11-55b7-4dc9-bfee-88bd4479e5c3
 function bewegdgl!(F,z,p,t)
@@ -120,7 +156,7 @@ function bewegdgl!(F,z,p,t)
 end
 
 # ╔═╡ 45c932d3-361b-4682-b913-5d4853b5107b
-md"""Lösen der Dgl. mit gegebenen Anfangsbedingungen"""
+md"""Lösen der Dgl. mit gegebenen Anfangsbedingungen: Abhängig von den gewählten Anfangsbedingungen stellen sich kleine (näherungsweise sinusförmige) Schwingungen um die stabile Gleichgewichtslage oder Schwingungen mit großer Amplitude ein."""
 
 # ╔═╡ f1ea42ff-5831-4f1c-9700-049fbd98447c
 begin
@@ -131,10 +167,26 @@ begin
 end;
 
 # ╔═╡ 27734b5e-6879-4a1d-bbe0-279c5d51d568
-plot(sol,layout=(2,1),label=["Winkel" "Winkelgeschw."])
+plot(sol,layout=(2,1),title=["Winkel ϕ" "Winkelgeschwindigkeit"],label=false)
+
+# ╔═╡ d911b9d5-d08b-4374-9711-fc7a1f3ab8f1
+md"""**Auftrag:** Probieren Sie aus, wie sich das Diagramm verändert, wenn Sie die Anfangsbedingungen ändern."""
 
 # ╔═╡ 3cadea09-0e90-455a-9372-50ce0ec056ff
-md"""Wie groß ist die Schwingungsdauer bei kleinen Schwingungen um die stabile Gleichgewichtslage? Um diese Frage zu beantworten, wird die rechte Seite der Dgl. (hier ``\Xi`` genannt) um die stabile Gleichgewichtslage linearisiert."""
+md"""
+### Schwingungsdauer für kleine Amplituden bestimmen
+Eine der zentralen Fragen in der Schwingungslehre ist die nach der Schwinungsdauer. 
+Wie groß ist die Schwingungsdauer bei kleinen Schwingungen um die stabile Gleichgewichtslage in unserem Beispiel? Um diese Frage zu beantworten, wird die rechte Seite der Dgl. (hier ``\Xi`` genannt) um die stabile Gleichgewichtslage linearisiert.
+
+Für die lineare Schwingungsdgl. mit konstanten Koeffizienten
+```math
+\ddot\varphi = \xi \varphi
+```
+gilt für die Schwingungsdauer bekanntermaßen
+```math
+T = \frac{2\pi}{\sqrt{-\xi}}\;.
+```
+"""
 
 # ╔═╡ bcf6fb7c-2725-453e-8b49-30fd08460f58
 ξ(ϕ) = ForwardDiff.derivative(ϕ->Ξ(ϕ,param),ϕ);
@@ -142,8 +194,20 @@ md"""Wie groß ist die Schwingungsdauer bei kleinen Schwingungen um die stabile 
 # ╔═╡ 03788582-6edc-4fd0-b744-6e5d4a9871ad
 T = 2*π/sqrt(-ξ(ϕG(param.κ)))
 
+# ╔═╡ 19fec4d9-2b28-499d-a227-a5a675768209
+md"""Die Schwingungsdauer für kleine Schwingungen um die stabile Gleichwichtslage beträgt $(round(T,digits=3)) s."""
+
 # ╔═╡ c94e7e99-0796-433b-884f-8b8a08d8c034
-md"""Zum Abschluss betrachten wir noch die mechanische Energie während der betrachteten Bewegung. Da es ein konservatives System ist, muss die mechanische Energie im Zeitverlauf erhalten bleiben."""
+md"""
+### Erhaltung der mechanischen Energie
+Zum Abschluss betrachten wir noch die mechanische Energie während der betrachteten Bewegung. Da es ein konservatives System ist, muss die mechanische Energie im Zeitverlauf erhalten bleiben. das wollen wir prüfen.
+
+Es gilt
+```math
+E_\mathrm{kin} = \frac{1}{2}J_\mathrm{A}\omega^2\;.
+```
+In Analogie zur potentiellen Energie betrachten wir hier ebenfalls die dimensionslose Größe (normiert wiederum mit ``0,\!5kl^2``).
+"""
 
 # ╔═╡ afce95ae-3ad0-45bf-84e8-22b7adcdc38c
 Ekin_d(ω,λ) = (ω/λ)^2;
@@ -165,6 +229,9 @@ Emech_d_tab = Epot_d.(ϕ_tab,param.κ) + Ekin_d.(ω_tab,param.λ);
 
 # ╔═╡ e3e567f2-fbf7-4830-b746-fc266a421ae5
 plot(sol.t,Emech_d_tab,ylims=(0,1.2*maximum(Emech_d_tab)),title="Mechanische Energie",label=false,size=(500,300),xlabel="Zeit [s]",ylabel="Energie [J]",lw=3)
+
+# ╔═╡ 9e40c6f0-09d7-4ab2-a7ab-339b4ef50875
+md"""Wenn Sie im oben stehenden Diagramm eine Gerade mit Anstieg Null (konstante Funktion) sehen, dann ist die Erhaltung der mechanischen Energie gegeben."""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2796,14 +2863,20 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─39d85ab2-b619-11ef-2bb4-d952962a5ba3
+# ╟─8d283b26-a98d-4025-a9b3-5b03901043de
 # ╠═a2d24406-bdc8-4988-b7fc-2d52a115ff96
+# ╟─a7c4f650-59a3-4690-9a2e-66430640e789
 # ╠═b36eadb4-36a9-4a03-9625-274b9510fd92
+# ╟─b7193864-4422-42a7-878f-7759b557447a
 # ╠═01aaec51-070a-4037-b36c-6185cb764ae4
+# ╟─e1873ee7-632f-4531-b8bc-6f850e11bece
 # ╠═8eccfb76-4321-4ce7-829d-ba202eea6533
+# ╟─e6501760-c35e-4db2-9fb6-c5e608d89069
 # ╠═127b6ff4-1fe5-4cd5-9113-cbb07655af26
-# ╠═8d3c1d29-c7bf-45f6-8c59-42a347672c08
 # ╟─c9ff7c07-3f19-4a85-9254-59fe20ffdf06
+# ╠═8d3c1d29-c7bf-45f6-8c59-42a347672c08
 # ╠═372d6a94-872c-4462-b7f0-c6995306d173
+# ╟─755bf023-3e09-4c5f-8b69-cd856d239eb6
 # ╠═6f0c52ba-4d80-4ca9-94dd-9a95fb17a64a
 # ╠═3aa79089-5b54-4565-a0ac-3846ab76274e
 # ╟─ff350a69-f1f5-4f0c-b343-8bce2ada1f59
@@ -2819,14 +2892,18 @@ version = "1.4.1+1"
 # ╠═d4d02a88-6d81-41bb-9b4d-5663e181d46a
 # ╟─c9f2da0e-850f-44e0-827e-b2438c007428
 # ╟─14b0fb33-059b-4e41-988b-d573b78d3b1e
+# ╟─74635621-5ac0-4497-b79a-e8eefa950d57
 # ╠═56248300-05fb-47bd-bd97-463c96c8b685
+# ╟─78225e4b-b578-462f-bf8e-e4d6c7ae6091
 # ╠═fb229a11-55b7-4dc9-bfee-88bd4479e5c3
 # ╟─45c932d3-361b-4682-b913-5d4853b5107b
 # ╠═f1ea42ff-5831-4f1c-9700-049fbd98447c
 # ╠═27734b5e-6879-4a1d-bbe0-279c5d51d568
+# ╟─d911b9d5-d08b-4374-9711-fc7a1f3ab8f1
 # ╟─3cadea09-0e90-455a-9372-50ce0ec056ff
 # ╠═bcf6fb7c-2725-453e-8b49-30fd08460f58
 # ╠═03788582-6edc-4fd0-b744-6e5d4a9871ad
+# ╟─19fec4d9-2b28-499d-a227-a5a675768209
 # ╠═6b47688d-4fe5-4eb7-8da9-e59ab2176049
 # ╟─c94e7e99-0796-433b-884f-8b8a08d8c034
 # ╠═afce95ae-3ad0-45bf-84e8-22b7adcdc38c
@@ -2834,5 +2911,6 @@ version = "1.4.1+1"
 # ╠═4cbd9e6e-b17f-4add-8518-4681b3e61d11
 # ╠═5f3e3232-d3bf-47d4-a664-e4e8eaa5dbb3
 # ╠═e3e567f2-fbf7-4830-b746-fc266a421ae5
+# ╟─9e40c6f0-09d7-4ab2-a7ab-339b4ef50875
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
