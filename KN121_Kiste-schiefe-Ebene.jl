@@ -21,6 +21,12 @@ md"""
 # ╔═╡ c7d9ca4e-599d-4f06-b060-4332dc7029c7
 md"""**Hinweis** Der Index F in den Variablen (z. B. `sF`, `tF` steht für den Beginn des Federanschlags)"""
 
+# ╔═╡ 465addbd-58b0-44d0-89bc-e5b91f6171b5
+md"""
+!!! task "Aufgabe"
+    Lösen Sie die Aufgabe zuerst *selbständig* mit Stift und Papier.
+"""
+
 # ╔═╡ bd62df7a-2420-4360-ad17-c3b66af46154
 md"""Beim Herunterrutschen der schiefen Ebene wirken auf die Kiste die Gewichtskraft und die Reibungskraft. Im zweiten Streckenabschnitt (ab Erreichen des Anschlags) wirkt zusätzlich die Federkraft. Beim Aufstellen der Bewegungsgleichung kann der zweite Streckenabschnitt herangezogen werden. Für den ersten Streckenabschnitt erhält man die Bewegungsgleichung, indem die Federsteifigkeit zu Null gesetzt wird. Durch Freischneiden wird die Reaktionskraft (Zwangskraft) zwischen Kiste und Rutschbahn sichtbar. Diese Kraft wird Normalkraft oder Kontaktkraft genannt und ist in Richtung der Flächennormale der Rutschbahn gerichtet. Wir wählen den Richtungssinn so, dass die Normalkraft nach oben auf die Kiste wirkt. Der Wert der Normalkraft ist dann positiv, solange die Kiste mit der Bahn in Kontakt ist."""
 
@@ -75,6 +81,10 @@ end;
 # ╔═╡ 34c5c8fa-7952-4839-b8b1-8fc7f64c016c
 md"""
 ### Lösung 1: analytische Formeln für die Lösung
+
+!!! task "Aufgabe"
+    Wenn Sie es nicht bereits getan haben, sollten Sie ausgehend von den oben stehenden Bewegungsgleichung jetzt die in der Aufgabenstellung gefragten Größen selbständig mit Stift und Papier (und Taschenrechner) berechnen. Schauen Sie sich danach die unten stehenden Formeln und Diagramme an.
+
 #### Abschnitt I: vor Berühren des Anschlags
 
 Vor Berühren des Anschlags ist die Beschleunigung konstant und ergibt sich aus den Effekten Gewichtskraft und Reibungskraft."""
@@ -89,7 +99,7 @@ md"""Wir möchten die Geschwindigkeit als Funktion des Weges darstellen. Die ges
 vI(s) = sqrt(2*aI*s);
 
 # ╔═╡ e5a7ebc9-0737-4259-a864-0a89e3bbceea
-vI(sF)
+vF = vI(sF)
 
 # ╔═╡ cfccf62c-b687-47ab-b176-bc78f2a5c5d6
 md"""Bei Erreichen des Anschlags beträgt die Geschwindigkeit $(round(typeof(1.0u"m/s"),vI(sF),digits=2))."""
@@ -126,13 +136,16 @@ vII(sB)
 md"""Die maximale Geschwindigkeit beträgt $(round(typeof(1.0u"m/s"),vII(sB),digits=2)) (im Vergleich zu $(round(typeof(1.0u"m/s"),vI(sF),digits=2)) bei Erreichen des Anschlags)."""
 
 # ╔═╡ 5b372a35-5227-4768-9bc9-d412730d48ac
-md"""Durch das Zusammendrücken der Feder wird der Körper abgebremst und erreicht einen momentanen Stillstand (danach Bewegungsumkehr). Der bis dahin zurückgelegte Weg kann durch Nullstellensuche bestimmt werden."""
+md"""Durch das Zusammendrücken der Feder wird der Körper abgebremst und erreicht einen momentanen Stillstand (danach Bewegungsumkehr). Der bis dahin zurückgelegte Weg kann durch numerische Nullstellensuche (Befehl `find_zero`) oder analytisch mit der pq-Formel bestimmt werden."""
 
 # ╔═╡ 4c8b5474-3eef-4ad3-8c61-44f9a35105a8
 smax = find_zero(diskr,3.6u"m")
 
 # ╔═╡ 8ceb0390-aa16-4a57-bfee-40d389fe86ca
 md"""Nach $(round(typeof(1.0u"m"),smax,digits=2)) kommt der Körper momentan zur Ruhe. Danach bewegt er sich in die andere Richtung. Der maximale Federweg ist demnach $(round(typeof(1.0u"m"),smax-sF,digits=2))."""
+
+# ╔═╡ 61ce1cf8-3bc6-4548-94b7-9dbcf19a3d0c
+smax_analyt = sF + m*aI/c + sqrt((m*aI/c)^2 + m/c*vF^2)
 
 # ╔═╡ d67bdccd-52c9-4794-bfd4-bc3a9864b47d
 md"""
@@ -2357,6 +2370,7 @@ version = "1.9.2+0"
 # ╠═1b31cde8-b0f5-47b5-b9b8-f64a92e1af8a
 # ╟─b2628b42-fad6-4c9d-8434-35eb6fa0c2f0
 # ╟─c7d9ca4e-599d-4f06-b060-4332dc7029c7
+# ╟─465addbd-58b0-44d0-89bc-e5b91f6171b5
 # ╟─bd62df7a-2420-4360-ad17-c3b66af46154
 # ╟─8e06c181-d860-4d32-8b78-edee6853f270
 # ╟─b5a64ea3-8c82-421c-bc0c-62cb4bd623b2
@@ -2381,6 +2395,7 @@ version = "1.9.2+0"
 # ╟─5b372a35-5227-4768-9bc9-d412730d48ac
 # ╠═4c8b5474-3eef-4ad3-8c61-44f9a35105a8
 # ╟─8ceb0390-aa16-4a57-bfee-40d389fe86ca
+# ╠═61ce1cf8-3bc6-4548-94b7-9dbcf19a3d0c
 # ╟─d67bdccd-52c9-4794-bfd4-bc3a9864b47d
 # ╠═c835fe8a-16b6-435d-8743-5b4f30e18627
 # ╠═cc6858ef-bd5e-4ec7-b25e-53076f6d0852
