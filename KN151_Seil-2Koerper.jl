@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.3
+# v0.20.11
 
 using Markdown
 using InteractiveUtils
@@ -10,8 +10,21 @@ using Unitful,LinearAlgebra, Plots
 # ╔═╡ 07434762-de90-11ed-1424-c7a6f3e69666
 md"""
 # Kinematik und Kinetik mit Julia
-## Aufgabe 8.1: 2 über ein Seil verbundene Körper
-Gelöst mit der Kräftegleichung (Newtonsches Bewegungsgesetz)"""
+## Zwei Körper mit Flaschenzug 
+Aufgabe 8.1 aus dem Lehrbuch *Kinematik und Kinetik* von T. Geike: (System 1 in der unten stehenden Abbildung)
+
+Gesucht wird die Beschleunigung der beiden translatorisch bewegten Körper für den Fall, dass zu Beginn der Beobachtung Körper 1 nach rechts rutscht.
+
+Gelöst wird die Aufgabe hier mit der Kräftegleichung (Newtonsches Bewegungsgesetz).
+
+!!! task "Aufgabe"
+     Lösen Sie die Aufgabe eigenständig, bevor Sie sich die Lösung hier anschauen.
+"""
+
+# ╔═╡ cebb0721-a7e6-4d8b-9725-b2c6a046b3f4
+md"""
+![System](https://github.com/tgeike/dynamik/blob/main/KN151_Seil-2Koerper.png?raw=true)
+"""
 
 # ╔═╡ cd7fb501-650e-41c6-88fa-6531ddda1ae6
 md"""
@@ -54,6 +67,11 @@ m2_d = ustrip(uconvert(u"kg",m2))
 # ╔═╡ f907ee9d-3732-4cce-8119-d92ad9a3a54f
 g_d = ustrip(uconvert(u"m/s^2",g))
 
+# ╔═╡ 11a880ea-3bd9-46c9-ad77-f2004b6cfca7
+md"""
+!!! task "Aufgabe"
+    Probieren Sie aus was passiert, wenn Sie oben bei einer oder mehreren Größen die Einheit ändern, beispielsweise die Masse von Körper 1 auf 10000 g setzen."""
+
 # ╔═╡ 8a014da3-cc8b-4b1f-b19c-de0234680a74
 md"""
 ### Schritt 3: Gleichungen aufschreiben und lösen (dimensionslos)
@@ -65,12 +83,19 @@ A = [m1_d 0 -1 0; 0 m2_d 0 -1; 0 0 2 -1; 1 2 0 0]
 # ╔═╡ d77551be-d779-4b56-88cb-8340962dc7e2
 b = [-FR_d; -m2_d*g_d; 0; 0]
 
+# ╔═╡ e964031d-47a4-4967-9459-102c11c92507
+md"""
+!!! task "Aufgabe"
+    Leiten Sie die vier linearen Gleichungen für die vier Unbekannten eigenständig her. Starten Sie mit zwei Freischnitten der beiden Körper. Beachten Sie, dass durch das Freischneiden die Zwangskräfte sichtbar werden. Erläutern Sie, wie die vier Gleichungen, die oben in Matrixform geschrieben sind aus der Kräftegleichung und der Kinematik folgen."""
+
 # ╔═╡ eacef235-0579-46ab-9ac5-5ccd7a3df08f
 erg = A\b
 
 # ╔═╡ af6f2321-f441-42a8-a978-3aea381d7e77
 md"""
-### Schritt 4: Ergebnis mit Einheiten auswerten und weiterrechnen"""
+### Schritt 4: Ergebnis mit Einheiten auswerten und weiterrechnen
+
+Zur Erinnerung: Das erste Element des Lösungsvektors `erg` ist die gesuchte Beschleunigung von Körper 1."""
 
 # ╔═╡ 08584a7f-3673-4728-9b35-273ff68a9520
 a1 = erg[1]*1u"m/s^2"
@@ -78,28 +103,28 @@ a1 = erg[1]*1u"m/s^2"
 # ╔═╡ fd364a96-a62b-4326-b9d6-0dafafb1a8ac
 md"""
 ### Schritt 5: Geschwindigkeit von Körper 1 bestimmen und Diagramm erstellen
-Die Diagramme für die Geschwindigkeit ``v_1`` werden für verschiedenen Einheiten erstellt (m/s, km/h, mi/h)."""
+Die Diagramme für die Geschwindigkeit ``v_1`` werden -- zur Illustration -- für verschiedenen Einheiten erstellt (m/s, km/h, mi/h)."""
 
 # ╔═╡ a30ec4e1-1a51-4ab7-963f-f5fbdb34bbd3
 v0 = 1u"m/s" # Anfangsgeschwindigkeit
 
 # ╔═╡ 9077909b-419f-4f8e-86e2-9a91aca5b719
-v(t) = a1*t + v0
+v(t) = a1*t + v0;
 
 # ╔═╡ 9d57577a-c30a-44c8-9e68-cf933dc58bdd
-t_tab = LinRange(0.0,1.0,200)*1u"s"
+t_tab = LinRange(0.0,1.0,200)*1u"s";
 
 # ╔═╡ 730683a5-db7d-4fc6-9756-cf3e79a6e26b
-v_tab = v.(t_tab)
+v_tab = v.(t_tab);
 
 # ╔═╡ b37c98cc-1fdb-4151-89dd-0c7150bcefba
-plot(t_tab,v_tab)
+plot(t_tab,v_tab,label=false,xlabel="Zeit",ylabel="Geschwindigkeit",size=(400,300),lw=2,title="Geschwindigkeit in m/s")
 
 # ╔═╡ 3167b620-38ef-433a-b829-d8c552832629
-plot(t_tab,uconvert.(u"km/hr",v_tab))
+plot(t_tab,uconvert.(u"km/hr",v_tab), label=false,xlabel="Zeit",ylabel="Geschwindigkeit",size=(400,300),lw=2,title="Geschwindigkeit in km/h")
 
 # ╔═╡ b27d508a-de42-4daa-b2a3-a647b96dd7c1
-plot(t_tab,uconvert.(u"mi/hr",v_tab))
+plot(t_tab,uconvert.(u"mi/hr",v_tab), label=false,xlabel="Zeit",ylabel="Geschwindigkeit",size=(400,300),lw=2,title="Geschwindigkeit in mi/h")
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -117,7 +142,7 @@ Unitful = "~1.13.1"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.5"
 manifest_format = "2.0"
 project_hash = "120dc2da23fb48b1365730fd399546cc935e368f"
 
@@ -599,7 +624,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.5+0"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1129,6 +1154,7 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─07434762-de90-11ed-1424-c7a6f3e69666
+# ╟─cebb0721-a7e6-4d8b-9725-b2c6a046b3f4
 # ╠═164286e2-23c0-484d-aaab-a2b15de43128
 # ╟─cd7fb501-650e-41c6-88fa-6531ddda1ae6
 # ╠═d34b01ee-09bc-44c2-a00c-0d3580aaa850
@@ -1142,9 +1168,11 @@ version = "1.4.1+1"
 # ╠═66057ced-a84c-47b7-aecd-3570899dcb7d
 # ╠═84f9d1db-5f4e-4285-b01c-7c028901d7da
 # ╠═f907ee9d-3732-4cce-8119-d92ad9a3a54f
+# ╟─11a880ea-3bd9-46c9-ad77-f2004b6cfca7
 # ╟─8a014da3-cc8b-4b1f-b19c-de0234680a74
 # ╠═6ca5e795-2c84-4cad-8570-55905a1c1d99
 # ╠═d77551be-d779-4b56-88cb-8340962dc7e2
+# ╟─e964031d-47a4-4967-9459-102c11c92507
 # ╠═eacef235-0579-46ab-9ac5-5ccd7a3df08f
 # ╟─af6f2321-f441-42a8-a978-3aea381d7e77
 # ╠═08584a7f-3673-4728-9b35-273ff68a9520
@@ -1153,8 +1181,8 @@ version = "1.4.1+1"
 # ╠═9077909b-419f-4f8e-86e2-9a91aca5b719
 # ╠═9d57577a-c30a-44c8-9e68-cf933dc58bdd
 # ╠═730683a5-db7d-4fc6-9756-cf3e79a6e26b
-# ╠═b37c98cc-1fdb-4151-89dd-0c7150bcefba
-# ╠═3167b620-38ef-433a-b829-d8c552832629
-# ╠═b27d508a-de42-4daa-b2a3-a647b96dd7c1
+# ╟─b37c98cc-1fdb-4151-89dd-0c7150bcefba
+# ╟─3167b620-38ef-433a-b829-d8c552832629
+# ╟─b27d508a-de42-4daa-b2a3-a647b96dd7c1
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
