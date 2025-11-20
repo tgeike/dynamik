@@ -66,6 +66,23 @@ Die Seillänge heißt in der Originalaufgabenstellung ``l``. Im Code heißt die 
 
 """
 
+# ╔═╡ 308e3a4b-1dae-4c15-8163-a31aed3a552d
+md"""
+!!! task "Aufgabe"
+    Bestimmen Sie die statische Ruhelage des Systems. In anderen Worten, es wird der Wert für ``y_1`` gesucht, bei dem das System ohne äußere Störung in Ruhe verharren würde."""
+
+# ╔═╡ 75d2ddb9-10a1-412a-a450-526d2774c2b6
+y1GGL = d*m1/sqrt(m2^2 - m1^2)
+
+# ╔═╡ 01388ec3-4fa5-482e-b227-516a6c1e4719
+md"""Die ``y``-Koordinate von Körper 1 hat in der statischen Ruhelage den Wert $(round(y1GGL,digits=2)) m."""
+
+# ╔═╡ 8aef5557-2d5e-45cd-8a4c-381610c8584b
+md"""Wir legen zusätzlich den Wert für die Erdbeschleunigung fest."""
+
+# ╔═╡ 1ec5ea83-eb70-426b-a655-680b126ff5fa
+g = 9.81 # m/s^2
+
 # ╔═╡ edf70639-05fd-4256-8224-40871c193747
 md"""
 ### Vorüberlegungen: Kinematik
@@ -126,9 +143,6 @@ v2(y1,v1) = ∂1ψ(y1)*v1;
 # ╔═╡ b9aa682e-f5e7-45d6-a67a-735d644893b4
 a2(y1,v1,a1) = ∂1ψ(y1)*a1 + ∂11ψ(y1)*v1^2;
 
-# ╔═╡ 46f14c12-3e3c-45d0-932a-c95ed99314a2
-
-
 # ╔═╡ 81465d81-1500-458a-8c51-1d9c1be4107d
 md"""
 ### Vorüberlegung: Kinetik
@@ -143,8 +157,33 @@ Das Prinzip des kleinsten Zwangs lautet mit ``a_1 = \ddot y_1`` und ``a_2 = \par
 ```
 """
 
-# ╔═╡ ac296448-c873-4173-84cd-0209fdcade4b
+# ╔═╡ 85d7fd91-c42a-4d2f-8a21-fef207c82559
+md"""Der Zwang ``\mathcal{Z}`` ist eine quadratische Funktion der generalisierten Beschleunigung ``a_1 = \ddot y_1``. Wir suchen demnach die Lage des Scheitelpunktes der nach oben geöffneten Parabel. Das kann auf vielen Wegen geschehen. Wir nutzen hier die automatische Differentiation. Das unten stehende Vorgehen lässt sich auch auf Systeme mit Freiheitsgrad größer als 1 erweitern. Statt der gewöhnlichen Ableitung (Befehl `derivative`) müssen den die entsprechenden Befehle für Funktionen mehrerer Veränderlicher (Befehle `gradient` und `hessian`) verwendet werden.
+"""
 
+# ╔═╡ ac296448-c873-4173-84cd-0209fdcade4b
+Z(a1,v1,y1) = 0.5*m1*(a1 - g)^2 + 0.5*m2*(a2(y1,v1,a1) - g)^2;
+
+# ╔═╡ 9ab1881e-cf18-4929-ad1e-e5f1dadaaa17
+ZG(a,v1,y1) = ForwardDiff.derivative(a->Z(a,v1,y1),a);
+
+# ╔═╡ 85d0f5f8-2d0e-427a-aef1-d140b4df7388
+ZH(a,v1,y1) = ForwardDiff.derivative(a->ZG(a,v1,y1),a);
+
+# ╔═╡ 12dc9c87-d322-43df-b8aa-65462e6376a5
+md"""Informativ zeigen wir hier den Zwang für die Startsituation (Start aus der Ruhe mit Anfangsauslenkung ``\delta`` aus der statischen Ruhelage).
+
+!!! task "Aufgabe"
+    Probieren Sie verschiedene Anfangsauslenkungen aus und schauen Sie, wie sich der Zwang und die Scheitelpunktlage ändern."""
+
+# ╔═╡ 758333df-0cfb-421e-80c8-375624b6bb67
+y1_ex = y1GGL + δ
+
+# ╔═╡ 14e9a4c8-e65f-499e-8db6-0c113ad83ca1
+-ZG(0,0,y1_ex)/ZH(0,0,y1_ex)
+
+# ╔═╡ ea141477-1f91-43e1-9f3f-ea73d9ce179b
+plot(-15:0.1:15,a->Z(a,0,y1_ex),size=(400,300),lw=2,label=false,xlabel="a₁ [m/s²]",ylabel="Zwang")
 
 # ╔═╡ 0780d702-3864-49da-a1b0-711b56603d15
 md"""
@@ -152,24 +191,61 @@ md"""
 """
 
 # ╔═╡ 173875a4-5136-4e9d-9b25-af857994886b
+# ╠═╡ disabled = true
+#=╠═╡
 struct Systemparameter
    g::Float64
-   chi::Float64
-   b::Float64
+   m1::Float64
+   m2::Float64
+   d::Float64
    L::Float64
 end 
+  ╠═╡ =#
 
-# ╔═╡ f6f8bbee-1041-46f3-ae28-b1ab7cc89403
-param = Systemparameter(9.81,2.0,4.0,12.0)
+# ╔═╡ de048feb-4855-4fa7-aad2-f2f9c9036ac9
+md"""
+!!! task "Aufgabe"
+    Schauen Sie sich die folgenden beiden Zellen genau an und erläutern Sie Zeile für Zeile den Code.
+"""
 
 # ╔═╡ 4ff19864-881b-4ac9-9731-b4a91f60c339
+function dgl!(F,z,param,t)
+	y1 = z[1]
+	v1 = z[2]
+	F[1] = v1
+	F[2] = -ZG(0,v1,y1)/ZH(0,v1,y1)
+end;
 
+# ╔═╡ 984f0df0-d3e7-40f5-8820-e592c7de5a60
+md"""
+### Post Processing
+Das unten stehende Diagramm zeigt den Zeitverlauf von ``y_1`` und ``v_1 = \dot y_1`` für die gewählte Anfangsauslenkung (bei Start aus der Ruhe).
+"""
+
+# ╔═╡ 1148fe33-567b-4363-8f61-7ca51c302ba0
+plot(sol,linewidth=2,xaxis="t",label=["y₁ [m]" "v₁ [m/s]"],layout=(2,1)) 
+
+# ╔═╡ dbf8ab8b-09f9-4fef-b3d9-a4ab4b697551
+md"""
+!!! task "Aufgabe"
+    Sofern Sie die Bilanz der kinetischen Energie bereits kennen, programmieren Sie eine Kontrollroutine, die die numerische Lösung `sol` nimmt und auf die Einhalt der Bilanz prüft.
+"""
 
 # ╔═╡ cfa11966-0823-4308-ba02-1ba0a7694e5c
+begin
+	param = ()
+	y1_start = y1GGL + d/50
+	v1_start = 0.0
+	z_start = [y1_start; v1_start]
+	tspan = (0.0,7.0)
+	prob = ODEProblem(dgl!,z_start,tspan,param)
+	sol = solve(prob)
+end;
 
-
-# ╔═╡ 0b4a7e17-46e1-448f-ad55-7aad7000184b
-m1
+# ╔═╡ f6f8bbee-1041-46f3-ae28-b1ab7cc89403
+#=╠═╡
+param = Systemparameter(g,m1,m2,d,L)
+  ╠═╡ =#
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -2890,6 +2966,11 @@ version = "1.9.2+0"
 # ╠═3f05b6d9-f5e2-4c86-87fb-639d44040ff6
 # ╟─4e6976bb-0e02-425d-8123-ea31b46a15c8
 # ╟─cdcafdfe-82f5-4ba9-a787-1334eeff6845
+# ╟─308e3a4b-1dae-4c15-8163-a31aed3a552d
+# ╠═75d2ddb9-10a1-412a-a450-526d2774c2b6
+# ╟─01388ec3-4fa5-482e-b227-516a6c1e4719
+# ╟─8aef5557-2d5e-45cd-8a4c-381610c8584b
+# ╠═1ec5ea83-eb70-426b-a655-680b126ff5fa
 # ╟─edf70639-05fd-4256-8224-40871c193747
 # ╟─9dbdbbdd-8fc4-4fa9-9667-181dbae73c89
 # ╟─75649b0b-0543-4562-aafa-b8cc5261c90a
@@ -2898,14 +2979,23 @@ version = "1.9.2+0"
 # ╠═f7b4ef90-6819-4fae-8dd7-376f00a81a44
 # ╠═9165c551-30a4-4783-975c-32be16a5bae1
 # ╠═b9aa682e-f5e7-45d6-a67a-735d644893b4
-# ╠═46f14c12-3e3c-45d0-932a-c95ed99314a2
 # ╟─81465d81-1500-458a-8c51-1d9c1be4107d
+# ╟─85d7fd91-c42a-4d2f-8a21-fef207c82559
 # ╠═ac296448-c873-4173-84cd-0209fdcade4b
+# ╠═9ab1881e-cf18-4929-ad1e-e5f1dadaaa17
+# ╠═85d0f5f8-2d0e-427a-aef1-d140b4df7388
+# ╟─12dc9c87-d322-43df-b8aa-65462e6376a5
+# ╠═758333df-0cfb-421e-80c8-375624b6bb67
+# ╠═14e9a4c8-e65f-499e-8db6-0c113ad83ca1
+# ╟─ea141477-1f91-43e1-9f3f-ea73d9ce179b
 # ╟─0780d702-3864-49da-a1b0-711b56603d15
 # ╠═173875a4-5136-4e9d-9b25-af857994886b
 # ╠═f6f8bbee-1041-46f3-ae28-b1ab7cc89403
+# ╟─de048feb-4855-4fa7-aad2-f2f9c9036ac9
 # ╠═4ff19864-881b-4ac9-9731-b4a91f60c339
 # ╠═cfa11966-0823-4308-ba02-1ba0a7694e5c
-# ╠═0b4a7e17-46e1-448f-ad55-7aad7000184b
+# ╟─984f0df0-d3e7-40f5-8820-e592c7de5a60
+# ╟─1148fe33-567b-4363-8f61-7ca51c302ba0
+# ╟─dbf8ab8b-09f9-4fef-b3d9-a4ab4b697551
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
