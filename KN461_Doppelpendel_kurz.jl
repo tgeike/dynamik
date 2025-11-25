@@ -35,11 +35,13 @@ Im vorliegenden Notebook wird das Doppelpendel untersucht.
 # ╔═╡ de2c01da-dc06-4b52-b8c4-a7cae89dd57a
 md"""
 !!! task "Aufgabe"
-    Tragen Sie hier Ihren Namen und Ihre Matrikelnummer ein.
+    Tragen Sie hier Ihren Namen und Ihre Matrikelnummer ein. Was sind die wichtigsten Inhalte, die Sie in diesem Kurs bisher gelernt haben?
 
 Name:
 
 Matrikelnummer:
+
+Wichtigste Inhalte bisher (eigene Einschätzung):
 """
 
 # ╔═╡ d51e08e7-660c-499d-ac4b-a283cde55a95
@@ -126,7 +128,7 @@ md"""
 
 | Parameter | Formelzeichen | Wert | Einheit |
 |:------------|:-------:|------:|:----:|
-| Endzeit der Simulation | tE | $(@bind tE NumberField(0.5:0.1:10.0; default=5.0)) | s |
+| Endzeit der Simulation | tE | $(@bind tE NumberField(0.5:0.1:15.0; default=5.0)) | s |
 | Winkel Körper 1 | ϕ10 | $(@bind ϕ10 NumberField(-180.0:1.0:180.0; default=30.0)) | ° |
 | Winkelgeschw. Körper 1 | ω10 | $(@bind ω10 NumberField(-1.0:0.1:1.0; default=0.0)) | 1/s |
 | Winkel Körper 2 | ϕ20 | $(@bind ϕ20 NumberField(-180.0:1.0:180.0; default=0.0)) | ° |
@@ -136,7 +138,6 @@ Die Startwerte werden über die Zellen in der vorgegebenen Einheit eingegeben. E
 
 !!! warning "Achtung"
     Beachten Sie, dass die Eingabe der Parameter über solche Eingabezellen nur dann sinnvoll ist, wenn die folgenden Berechnungen schnell gehen. Jede Anpassung der einzelnen Zellen führt zu einer Neuberechnung des Pluto-Notebooks.
-
 """
 
 # ╔═╡ 5f98ad3d-91ec-4f2f-b3bb-92d1ce323704
