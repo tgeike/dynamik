@@ -129,9 +129,9 @@ md"""
 | Parameter | Formelzeichen | Wert | Einheit |
 |:------------|:-------:|------:|:----:|
 | Endzeit der Simulation | tE | $(@bind tE NumberField(0.5:0.1:15.0; default=5.0)) | s |
-| Winkel Körper 1 | ϕ10 | $(@bind ϕ10 NumberField(-180.0:1.0:180.0; default=30.0)) | ° |
+| Winkel Körper 1 | ϕ10 | $(@bind ϕ10 NumberField(-3.1:0.1:3.3; default=1.0)) | rad |
 | Winkelgeschw. Körper 1 | ω10 | $(@bind ω10 NumberField(-1.0:0.1:1.0; default=0.0)) | 1/s |
-| Winkel Körper 2 | ϕ20 | $(@bind ϕ20 NumberField(-180.0:1.0:180.0; default=0.0)) | ° |
+| Winkel Körper 2 | ϕ20 | $(@bind ϕ20 NumberField(-3.1:0.1:3.3; default=0.0)) | rad |
 | Winkelgeschw. Körper 2 | ω20 | $(@bind ω20 NumberField(-1.0:0.1:1.0; default=0.0)) | 1/s |
 
 Die Startwerte werden über die Zellen in der vorgegebenen Einheit eingegeben. Es wird im folgenden ohne Einheiten gerechnet.
