@@ -157,7 +157,7 @@ md"""
 # ╔═╡ a36783c8-1c2a-441d-bb6c-c934f906bf7b
 begin
 	tspan = (0.0,tE)
-	z_start = [deg2rad(ϕ10); ω10; deg2rad(ϕ20); ω20] 
+	z_start = [(ϕ10); ω10; (ϕ20); ω20] 
 	prob1 = ODEProblem(bewegdgl!,z_start,tspan,1)
 	sol1a = solve(prob1,Tsit5(),reltol=1e-8,abstol=1e-9)
 	sol1b = solve(prob1,Tsit5(),reltol=1e-5,abstol=1e-6)
