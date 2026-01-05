@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.20.11
+# v0.20.3
 
 using Markdown
 using InteractiveUtils
@@ -12,8 +12,9 @@ using BenchmarkTools
 
 # ╔═╡ 3ba0e0b2-bc57-11ee-13a6-27a473b71189
 md"""
-# Kinetik mit Julia
-## Hebevorrichtung mit Riementrieb"""
+# Technische Mechanik mit Julia
+## Hebevorrichtung mit Riementrieb und Asynchronmotor
+Aufgabenkennung auf github *KN411*"""
 
 # ╔═╡ 7263c401-6aa5-4aa1-afcf-31746059ce4c
 md"""
@@ -23,48 +24,64 @@ md"""
 """
 
 # ╔═╡ 445cee60-ed2d-498a-a8d3-c8788cd56915
-md"""**Prüfe die Sinnhaftigkeit der Parameter**
-Rechne insbesondere für die MTM nach, welche Massen da im Spiel sind, wenn die Radien bekannt sind und homogene Zylinder angenommen werden."""
+md"""
+#### Parameter und Motorgesetz festlegen
+Zuerst definieren wir die geometrischen Abmessungen und die Massen bzw. Massenträgheitsmomente der beteiligten Körper und die Erdbeschleunigung.
+"""
 
 # ╔═╡ 1c1a4294-0e08-4c48-8c87-a8c56a718e94
 begin 
-	J1 = 2.0
-	J2 = 4.0
-	m3 = 20.0
-	mL = 40.0
-	g = 9.81
-	#MA = 30.0
-	R1 = 0.1
-	R2 = 0.4
-	r2 = 0.1
-	ωS = 2*π*375/60
-	sK = 0.2
-	TKipp = 50.0
+	J1 = 1.0  # kg m²
+	J2 = 4.0  # kg m²
+	m3 = 50.0 # kg
+	mL = 0.0  # kg Zusatzmasse zu m3
+	R1 = 0.1  # m
+	R2 = 0.4  # m
+	r2 = 0.1  # m
+	g = 9.81  # m/s²
 end;
+
+# ╔═╡ d92484b7-9c77-465e-a7e4-38ba228141dc
+md"""Wenn der Antrieb durch einen Asynchronmotor erfolgt, werden zusätzliche Parameter benötigt: Winkelgeschwindigkeit des Drehfeldes ``\omega_\mathrm{S}``, Kippschlupf ``s_\mathrm{K}`` und Kippmoment ``T_\mathrm{Kipp}``."""
+
+# ╔═╡ 284dbac4-d2a1-4bc3-ad7c-b2ba20a8519d
+begin
+	ωS = 2*π*375/60 # 1/s
+	sK = 0.2 # dimensionslos
+	TKipp = 50.0 # N m
+end;
+
+# ╔═╡ 85077aed-a20c-4a0f-8aa6-91ec2a917886
+md"""Für die Berechnung des Antriebsmomentes mit der Formel von Kloß wird die untenstehende Hilfsfunktion ``\chi`` benötigt."""
 
 # ╔═╡ 35231244-e2e3-41f8-b3ee-3813d126c54a
 χ(s,sKipp) = 2.0/(s/sKipp + sKipp/s);
+
+# ╔═╡ 901b4162-8667-4f2e-b682-8432d0981006
+md"""Der Schlupf ist eine dimensionslose Größe, die den Unterschied zwischen der Drehgeschwindigkeit des Drehfeldes und der Drehgeschwindigkeit der Welle charakterisiert. Schlupf 0 bedeutet, dass beide Drehgeschwindigkeiten übereinstimmen, Schlupf 1 bedeutet, dass die Welle steht."""
 
 # ╔═╡ cfa6cd2a-501c-46e9-bd8e-c88b4f3a70d8
 schlupf(ω, ω_ref) = (ω_ref - ω)/ω_ref;
 
 # ╔═╡ af3bafc3-6a6b-45c1-a0b1-94053e85611a
-md"""Das System hat den Freiheitsgrad 1. Daher genügt eine generalisierte Koordinate zur Beschreibung des Systemverhaltens."""
+md"""
+#### Bewegungsgleichung definieren
+Das System hat den Freiheitsgrad 1. Daher genügt eine generalisierte Koordinate zur Beschreibung des Systemverhaltens. In unserem Fall ist dies der Drehwinkel ``\varphi_1`` der Antriebswelle."""
 
 # ╔═╡ dee29edd-6214-495b-9939-c8d6e9c623f7
-function Zwang(α1,z) #ergänze später noch Parameter
-	α2 = R1/R2*α1
-	a3 = r2*α2
-	s = schlupf(z[2],ωS)
-	MA = TKipp*χ(s,sK)
+function Zwang(α1,z)
+	α2 = R1/R2*α1          # Winkelbeschleunigung der Seiltrommel
+	a3 = r2*α2             # Vertikalbeschleunigung der Last
+	s = schlupf(z[2],ωS)   # Schlupf
+	MA = TKipp*χ(s,sK)     # Antriebsmoment
    return 0.5/J1*(J1*α1 - MA)^2 + 0.5*J2*α2^2 + 0.5*(m3+mL)*(a3 +g)^2
-end
+end;
 
 # ╔═╡ 8f60e96f-55e0-49d2-bc34-acf344a816d9
-Z_α(α,z) = ForwardDiff.derivative(α->Zwang(α,z),α) 
+Z_α(α,z) = ForwardDiff.derivative(α->Zwang(α,z),α);
 
 # ╔═╡ 6f598557-9d73-4fa5-b4bd-5b8a7a3fc5ae
-Z_αα(α,z) = ForwardDiff.derivative(α->Z_α(α,z),α)
+Z_αα(α,z) = ForwardDiff.derivative(α->Z_α(α,z),α);
 
 # ╔═╡ fe418e9e-6ce2-4570-b983-fba1db734167
 @btime -Z_α(0,[0.0;0.0])/Z_αα(0,[0.0;0.0])
@@ -73,22 +90,18 @@ Z_αα(α,z) = ForwardDiff.derivative(α->Z_α(α,z),α)
 α1 = -Z_α(0,[0.0;0.0])/Z_αα(0,[0.0;0.0])
 
 # ╔═╡ 629d3725-866a-4792-8497-9d5d14d82acc
-@btime (TKipp*(R2/(R1*r2)) - (mL+m3)*g)/(J1*(R2/(R1*r2))^2 + J2/r2^2 + mL + m3)
-
-# ╔═╡ 2c81e9dc-07a4-41b4-9ee9-5c2da19d51cb
-2183/366
+@btime R2/(R1*r2)*(TKipp*χ(schlupf(0.0,ωS),sK)*(R2/(R1*r2)) - (mL+m3)*g)/(J1*(R2/(R1*r2))^2 + J2/r2^2 + mL + m3)
 
 # ╔═╡ 2c578386-f630-4ede-b79b-ad0c56b36570
 begin 
-	plot(α->Zwang(α,[0.0,0.0]),-4.0:0.2:12,label=false,w=3,size=(300,300),xlabel="α",ylabel="Zwang")
-	vline!([α1],label=false) #,ylims=(3050,3100)
+	plot(α->Zwang(α,[0.0,0.0]),-4.0:0.2:14, label=false,w=3,size=(300,300),xlabel="α",ylabel="Zwang",fontfamily="Arial")
+	#vline!([α1],label=false)
+	scatter!([α1],[Zwang(α1,[0.0,0.0])],label=false)
+	#savefig("KN411_Zwang-Diagramm.svg")
 end
 
-# ╔═╡ a8b1f006-1321-425a-9939-b56169a03d73
-plot(α->Z_αα(α,[0.0;0.0]),-2:10,size=(600,100),label=false)
-
 # ╔═╡ 2fa5d6bd-f102-4edc-9155-41e3177e64b1
-a3_analyt = (TKipp*(R2/(R1*r2)) - (mL+m3)*g)/(J1*(R2/(R1*r2))^2 + J2/r2^2 + mL + m3)
+a3_analyt = (TKipp*χ(schlupf(0.0,ωS),sK)*(R2/(R1*r2)) - (mL+m3)*g)/(J1*(R2/(R1*r2))^2 + J2/r2^2 + mL + m3)
 
 # ╔═╡ 332cf392-60e7-404f-9aeb-21c2f54e172e
 a3_num = α1*r2*R1/R2
@@ -97,7 +110,15 @@ a3_num = α1*r2*R1/R2
 function bewegdgl1!(F,z,p,t)
 	F[1] = z[2]
 	F[2] = -Z_α(0,z)/Z_αα(0,z)
-end
+end;
+
+# ╔═╡ b1e3af0f-3735-4ef8-97a9-9884aec89459
+begin
+	tspan = (0.0,5.0)
+    z_start = [0.0; 0.0]
+    prob1 = ODEProblem(bewegdgl1!,z_start,tspan,0.0)
+    sol1 = solve(prob1, Tsit5(), reltol=1e-9, abstol=1e-9)
+end;
 
 # ╔═╡ dbbcfce5-dbf1-4482-ae46-f2d21afff318
 function bewegdgl2!(F,z,p,t)
@@ -105,46 +126,22 @@ function bewegdgl2!(F,z,p,t)
 	MA = TKipp*χ(s,sK)
 	F[1] = z[2]
     F[2] = ((MA*(R2/(R1*r2)) - (mL+m3)*g)/(J1*(R2/(R1*r2))^2 + J2/r2^2 + mL + m3))*R2/(R1*r2)
-end
-
-# ╔═╡ 25187b3f-4033-421f-838a-b4b6627d72c7
-F=[0.0;0.0]
-
-# ╔═╡ aa41ae16-617d-425d-9874-86600ae90e69
-bewegdgl1!(F,[0.0;0.0],0.0,1.0)
-
-# ╔═╡ b1e3af0f-3735-4ef8-97a9-9884aec89459
-begin
-	tspan = (0.0,10.0)
-    z_start = [0.0; 0.0]
-    prob1 = ODEProblem(bewegdgl1!,z_start,tspan,0.0)
-    sol1 = solve(prob1, Tsit5(), reltol=1e-9, abstol=1e-9)
-	#@btime solve(prob1, Tsit5(), reltol=1e-9, abstol=1e-9)
-end
+end;
 
 # ╔═╡ 6d804c91-8395-4795-abf5-5a3ae343dac4
-plot(sol1,layout=(1,2))
+plot(sol1,layout=(1,2),size=(600,300))
+
+# ╔═╡ 75f507cc-2f08-4ccd-99f5-f4f8add1ada0
+# Plotte auch das Antriebsmoment und den Schlupf als Funktion der Zeit
 
 # ╔═╡ 8fdc9e23-e02a-4044-befc-175cf641690e
-@btime solve(prob1, Tsit5(), reltol=1e-9, abstol=1e-9)
+@btime solve(prob1, Tsit5(), reltol=1e-9, abstol=1e-9);
 
 # ╔═╡ d0f95f89-967d-4e5a-aee6-1ec6d87ad5cf
-prob2 = ODEProblem(bewegdgl2!,z_start,tspan,0.0)
+prob2 = ODEProblem(bewegdgl2!,z_start,tspan,0.0);
 
 # ╔═╡ a97e84c9-157f-45d4-94d9-8658e051c009
-@btime solve(prob2, Tsit5(), reltol=1e-9, abstol=1e-9)
-
-# ╔═╡ fb00a4a2-9893-4bc2-bf68-582e9b31add0
-1800/530
-
-# ╔═╡ ac83f9f8-563d-4955-88ad-661f894d5b03
-md""" 115 μs vs 33 μs; 1.785 ms"""
-
-# ╔═╡ b73ef987-9f45-40be-accb-9d000dc36f53
-115/33
-
-# ╔═╡ 3b69d2cc-0163-403c-a2fc-d75830a35e86
-1785/488
+@btime solve(prob2, Tsit5(), reltol=1e-9, abstol=1e-9);
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -159,7 +156,7 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.5"
+julia_version = "1.11.3"
 manifest_format = "2.0"
 project_hash = "f6887a3ea3f3e4c6fe8db603e126b49ce4b555a3"
 
@@ -1577,7 +1574,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.5+0"
+version = "0.8.1+2"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "NetworkOptions", "OpenSSL_jll", "Sockets"]
@@ -2828,7 +2825,11 @@ version = "1.9.2+0"
 # ╠═a68b16f7-c33c-49fa-a775-7542e9548e49
 # ╟─445cee60-ed2d-498a-a8d3-c8788cd56915
 # ╠═1c1a4294-0e08-4c48-8c87-a8c56a718e94
+# ╟─d92484b7-9c77-465e-a7e4-38ba228141dc
+# ╠═284dbac4-d2a1-4bc3-ad7c-b2ba20a8519d
+# ╟─85077aed-a20c-4a0f-8aa6-91ec2a917886
 # ╠═35231244-e2e3-41f8-b3ee-3813d126c54a
+# ╟─901b4162-8667-4f2e-b682-8432d0981006
 # ╠═cfa6cd2a-501c-46e9-bd8e-c88b4f3a70d8
 # ╟─af3bafc3-6a6b-45c1-a0b1-94053e85611a
 # ╠═dee29edd-6214-495b-9939-c8d6e9c623f7
@@ -2837,23 +2838,16 @@ version = "1.9.2+0"
 # ╠═fe418e9e-6ce2-4570-b983-fba1db734167
 # ╠═631f2c7c-84b5-4594-8a13-0d525231d127
 # ╠═629d3725-866a-4792-8497-9d5d14d82acc
-# ╠═2c81e9dc-07a4-41b4-9ee9-5c2da19d51cb
 # ╠═2c578386-f630-4ede-b79b-ad0c56b36570
-# ╠═a8b1f006-1321-425a-9939-b56169a03d73
 # ╠═2fa5d6bd-f102-4edc-9155-41e3177e64b1
 # ╠═332cf392-60e7-404f-9aeb-21c2f54e172e
 # ╠═cc6bc07e-c7bb-43b3-8f5c-120fb1625945
-# ╠═dbbcfce5-dbf1-4482-ae46-f2d21afff318
-# ╠═25187b3f-4033-421f-838a-b4b6627d72c7
-# ╠═aa41ae16-617d-425d-9874-86600ae90e69
 # ╠═b1e3af0f-3735-4ef8-97a9-9884aec89459
+# ╠═dbbcfce5-dbf1-4482-ae46-f2d21afff318
 # ╠═6d804c91-8395-4795-abf5-5a3ae343dac4
+# ╠═75f507cc-2f08-4ccd-99f5-f4f8add1ada0
 # ╠═8fdc9e23-e02a-4044-befc-175cf641690e
 # ╠═d0f95f89-967d-4e5a-aee6-1ec6d87ad5cf
 # ╠═a97e84c9-157f-45d4-94d9-8658e051c009
-# ╠═fb00a4a2-9893-4bc2-bf68-582e9b31add0
-# ╠═ac83f9f8-563d-4955-88ad-661f894d5b03
-# ╠═b73ef987-9f45-40be-accb-9d000dc36f53
-# ╠═3b69d2cc-0163-403c-a2fc-d75830a35e86
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
