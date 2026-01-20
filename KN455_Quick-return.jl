@@ -9,50 +9,70 @@ using ForwardDiff,Plots
 
 # ╔═╡ 550a22f5-06a9-4e26-af79-12a0f750532a
 begin
-	β10 = 0.4356 # rad
-	ωM = 4*π # 1/s
-	d = 2.0
-	r = 1.5
-	l2 = 4.0
-	l3 = 1.9
-	yP = 4.0
+	β10 = 0.43 # rad
+	ωK = 2*π # 1/s Winkelgeschwindigkeit der Kurbel
+	d = 2.0  # m
+	r = 1.5  # m
+	l2 = 4.0 # m
+	l3 = 1.9 # m
+	yP = 4.0 # m
 end;
 
 # ╔═╡ ae2b85c4-9262-41f4-b54c-91a5bb3fac1e
-β(t) = ωM*t + β10;
+β(t) = ωK*t + β10; # Drehwinkel der Kurbel ggü. der Horizontalen
 
 # ╔═╡ 75c1b6e0-f5e9-11f0-16b0-d38706ea74e5
-ϕ1(t) = 0.5*π - β(t) 
+ϕ1(t) = 0.5*π - β(t); # Drehwinkel der Kurbel ggü. der Vertikalen
 
 # ╔═╡ 2b427270-4a1b-4e8c-bc18-e3a8ab177081
-ϕ2(t) = atan(sin(ϕ1(t)),d/r+cos(ϕ1(t)));
-
-# ╔═╡ 43eff689-9e0f-4ebd-bbb4-125a89038a70
-plot(0:0.01:1.0,t->rad2deg.(ϕ2(t)),size=(500,250),xlabel="Zeit [s]",ylabel="ϕ₂ [deg]",label=false,lw=2)
+ϕ2(t) = atan(sin(ϕ1(t)), d/r+cos(ϕ1(t))); # Drehwinkel der Schwinge
 
 # ╔═╡ 01bf9aae-4386-4f45-8165-d8e2a54ed04c
-xB(t) = l2*sin(ϕ2(t));
+xB(t) = l2*sin(ϕ2(t)); # x-Koordinate von B
 
 # ╔═╡ ffcff5e6-53e8-468b-ae84-fe6f42e4eb09
-yB(t) = l2*cos(ϕ2(t));
+yB(t) = l2*cos(ϕ2(t)); # y-Koordinate von B
 
 # ╔═╡ 4ae243c9-c902-4728-9a4b-3fbe959cecba
-xP(t) = xB(t) - sqrt(l3^2 - (yP - yB(t))^2);
-
-# ╔═╡ caa5ce40-dedc-416e-84d4-5ad1c99ce855
-plot(0:0.005:1.0,xP,size=(500,250),xlabel="Zeit [s]",ylabel="xP [m]",label=false,lw=2)
+xP(t) = xB(t) - sqrt(l3^2 - (yP - yB(t))^2); # x-Koordinate von P
 
 # ╔═╡ 0ae4f5a5-42d2-40b5-92bb-d6404d3ab278
-vP(t) = ForwardDiff.derivative(xP,t);
+vP(t) = ForwardDiff.derivative(xP,t); # Geschwindigkeit von P
 
 # ╔═╡ 6a140bdb-68d8-4753-81cf-66730f8d6456
-aP(t) = ForwardDiff.derivative(vP,t);
+aP(t) = ForwardDiff.derivative(vP,t); # Beschleunigung von P
+
+# ╔═╡ caa5ce40-dedc-416e-84d4-5ad1c99ce855
+begin
+	plot(0:0.005:1.0,xP,size=(500,250),xlabel="Zeit [s]",ylabel="xP [m]",label=false,lw=2)
+	hline!([1.67],label=false)
+	vline!([0.8],label=false)
+end
 
 # ╔═╡ 82e08c1a-39b9-406d-a97f-23b402df3496
-plot(0:0.002:1.0,vP,size=(500,250),xlabel="Zeit [s]",ylabel="vP [m/s]",label=false,lw=2)
+begin 
+	plot(0:0.002:1.0,vP,size=(500,250),xlabel="Zeit [s]",ylabel="vP [m/s]",label=false,lw=2)
+	hline!([74],label=false)
+	vline!([0.68],label=false)
+end
 
 # ╔═╡ 03245672-f394-4a9e-9ce0-26c640db11a9
-plot(0:0.002:1.0,aP,size=(500,250),xlabel="Zeit [s]",ylabel="aP [m/s²]",label=false,lw=2)
+begin 
+	plot(0:0.002:1.0,aP,size=(500,250),xlabel="Zeit [s]",ylabel="aP [m/s²]",label=false,lw=2)
+	hline!([1817],label=false)
+end
+
+# ╔═╡ ed3f0f0a-d420-426c-af0c-7372e9a84e42
+begin 
+	plot(0:0.002:1.0,[xP,vP,aP],size=(500,500),xlabel="Zeit [s]",ylabel=["xP [m]" "vP [m/s]" "aP [m/s²]"],label=false,lw=2,layout=(3,1),fontfamily="Arial")
+	#savefig("KN455_Quick-return_Diagramm.svg")
+end
+
+# ╔═╡ 2fd50c9c-dc08-4e7b-b0a0-085788e2d2e8
+xP(0.0)
+
+# ╔═╡ 43eff689-9e0f-4ebd-bbb4-125a89038a70
+plot(0:0.01:1.0,t->rad2deg.(ϕ2(t)),size=(500,250),xlabel="Zeit [s]",ylabel="ϕ₂ [deg]",label=false,lw=2,title="Drehwinkel der Schwinge")
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1217,7 +1237,6 @@ version = "1.9.2+0"
 # ╠═ae2b85c4-9262-41f4-b54c-91a5bb3fac1e
 # ╠═75c1b6e0-f5e9-11f0-16b0-d38706ea74e5
 # ╠═2b427270-4a1b-4e8c-bc18-e3a8ab177081
-# ╠═43eff689-9e0f-4ebd-bbb4-125a89038a70
 # ╠═01bf9aae-4386-4f45-8165-d8e2a54ed04c
 # ╠═ffcff5e6-53e8-468b-ae84-fe6f42e4eb09
 # ╠═4ae243c9-c902-4728-9a4b-3fbe959cecba
@@ -1226,5 +1245,8 @@ version = "1.9.2+0"
 # ╠═caa5ce40-dedc-416e-84d4-5ad1c99ce855
 # ╠═82e08c1a-39b9-406d-a97f-23b402df3496
 # ╠═03245672-f394-4a9e-9ce0-26c640db11a9
+# ╠═ed3f0f0a-d420-426c-af0c-7372e9a84e42
+# ╠═2fd50c9c-dc08-4e7b-b0a0-085788e2d2e8
+# ╠═43eff689-9e0f-4ebd-bbb4-125a89038a70
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
